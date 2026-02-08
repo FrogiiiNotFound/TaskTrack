@@ -20,7 +20,7 @@ const UserSchema = new mongoose.Schema({
     maxLength: 32,
   },
   isActivated: {
-    type: String,
+    type: Boolean,
     required: false,
     default: false,
   },
