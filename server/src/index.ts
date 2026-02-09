@@ -1,10 +1,9 @@
-import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import express from 'express';
+import mongoose from 'mongoose';
 import { CLIENT_URL, DB_CONNECTION, PORT } from './config/constants';
 import router from './routes';
-import mongoose from 'mongoose';
-import session from 'express-session';
 
 const app = express();
 

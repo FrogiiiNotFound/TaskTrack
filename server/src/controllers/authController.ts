@@ -15,8 +15,8 @@ export const authController = {
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
-      const { body } = matchedData(req);
-      const { email, password } = body;
+
+      const { email, password } = matchedData(req);
 
       const candidate = await User.findOne({ email: email });
       if (candidate) {
@@ -56,12 +56,11 @@ export const authController = {
   loginUser: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const errors = validationResult(req);
-      if (!errors.isEmpty) {
+      if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
       }
 
-      const { body } = matchedData(req);
-      const { email, password } = body;
+      const { email, password } = matchedData(req);
 
       const user = await User.findOne({ email });
       if (!user) throw ApiError.BadRequest('User not found');
@@ -70,8 +69,19 @@ export const authController = {
       if (!isMatch) throw ApiError.BadRequest('Invalid password');
 
       const userDto = { id: user._id, email: user.email, isActivated: user.isActivated };
+      const tokens = TokenService.generateTokens({ ...userDto });
 
-      return res.send(200).json(userDto);
+      await TokenService.saveToken(userDto.id, tokens.refreshToken);
+
+      res.cookie('refreshToken', tokens.refreshToken, {
+        maxAge: 1000 * 60 * 60 * 24 * 30,
+        httpOnly: true,
+      });
+
+      return res.status(200).json({
+        ...tokens,
+        user: userDto,
+      });
     } catch (e) {
       next(e);
     }
