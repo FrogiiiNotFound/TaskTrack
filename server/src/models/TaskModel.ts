@@ -1,34 +1,34 @@
 import mongoose from 'mongoose';
 
-const TaskSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
+const TaskSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    text: {
+      type: String,
+    },
+    status: {
+      type: String,
+      enum: ['inProgress', 'marked', 'done'],
+      required: true,
+      default: 'inProgress',
+    },
+    taskGroupId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'TaskGroup',
+      required: true,
+    },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
   },
-  text: {
-    type: String,
+  {
+    timestamps: true,
   },
-  status: {
-    type: String,
-    enum: ['inProgress', 'marked', 'done'],
-    required: true,
-    default: 'inProgress',
-  },
-  taskGroupId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'TaskGroup',
-    required: true,
-  },
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    immutable: true,
-  },
-});
+);
 
 export const TaskModel = mongoose.model('Task', TaskSchema);

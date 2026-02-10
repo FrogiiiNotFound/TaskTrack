@@ -11,8 +11,7 @@ const TaskGroupSchema = new mongoose.Schema({
   color: {
     type: String,
     enum: ['#880d1e', '#606c38', '#f26a8d', '#7f5539', '#0077b6', '#5a189a', '#fdf0d5'],
-    require: true,
-    createdAt: String,
+    default: '#0077b6',
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
