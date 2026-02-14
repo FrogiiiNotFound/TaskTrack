@@ -65,7 +65,7 @@ export const taskController = {
 
     const updatedTask = await TaskModel.findOneAndUpdate(
       { _id: taskId, user: userId },
-      { name, text, status, taskGroupId },
+      { $set: { name, text, status, taskGroupId } },
       { new: true, runValidators: true },
     );
     if (!updatedTask) throw ApiError.BadRequest('Task not found');

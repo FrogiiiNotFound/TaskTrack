@@ -65,7 +65,7 @@ export const taskGroupController = {
 
       const updatedGroup = await TaskGroupModel.findOneAndUpdate(
         { _id: id, userId },
-        { name, bannerUrl, color },
+        { $set: { name, bannerUrl, color } },
         { new: true, runValidators: true },
       );
       if (!updatedGroup) return res.status(404).json({ message: 'Группа не найдена' });

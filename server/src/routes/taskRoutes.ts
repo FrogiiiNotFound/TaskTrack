@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import { taskController } from '../controllers/taskController';
+import { authMiddleware } from '../middlewares/authMiddleware';
 
 const taskRouter = Router();
+
+taskRouter.use(authMiddleware);
 
 taskRouter.get('/tasks', taskController.getAllTasks);
 taskRouter.get('/tasks/:id', taskController.getTaskById);

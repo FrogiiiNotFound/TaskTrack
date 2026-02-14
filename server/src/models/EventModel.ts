@@ -8,8 +8,11 @@ const EventsSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  startDate: {
+    type: Date,
+  },
   endDate: {
-    type: String,
+    type: Date,
   },
   userId: {
     type: String,

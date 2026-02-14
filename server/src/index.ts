@@ -4,6 +4,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { CLIENT_URL, DB_CONNECTION, PORT } from './config/constants';
 import router from './routes';
+import { errorsHandler } from './middlewares/errorsMiddleware';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(
 );
 app.use(cookieParser());
 app.use('/api/v1', router);
+app.use(errorsHandler);
 
 const startServer = () => {
   try {
