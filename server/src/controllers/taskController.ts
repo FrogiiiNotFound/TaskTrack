@@ -72,6 +72,9 @@ export const taskController = {
 
     return res.status(200).json(updatedTask);
   },
+  updateTaskState: async (req: Request, res: Response, next: NextFunction) => {
+
+  },
   deleteTask: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { taskId } = req.params;

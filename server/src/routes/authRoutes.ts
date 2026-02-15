@@ -1,16 +1,14 @@
 import { Router } from 'express';
 import { authController } from '../controllers/authController';
-import { loginValidationRules } from '../ultils/validators/auth/login';
-import { body } from 'express-validator';
+import { validate } from '../middlewares/validationMiddleware';
+import { AuthSchema } from '../ultils/validation/authValidation';
 
 const authRouter = Router();
 
-authRouter.post(
-  '/register',
-  body('email').notEmpty(),
-  body('password').isLength({ min: 6 }),
-  authController.registerUser,
-);
-authRouter.post('/login', loginValidationRules, authController.loginUser);
+authRouter.post('/register', validate(AuthSchema), authController.registerUser);
+authRouter.post('/login', validate(AuthSchema), authController.loginUser);
+authRouter.post('/logout', authController.logoutUser);
+authRouter.post('/refresh', authController.refresh);
+authRouter.post('/activate/:link', authController.activate);
 
 export default authRouter;

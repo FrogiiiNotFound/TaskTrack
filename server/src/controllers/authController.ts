@@ -7,6 +7,7 @@ import { v4 } from 'uuid';
 import TokenService from '../services/TokenService';
 import { API_URL } from '../config/constants';
 import MailService from '../services/MailService';
+import AuthService from '../services/AuthService';
 
 export const authController = {
   registerUser: async (req: Request, res: Response, next: NextFunction) => {
@@ -86,4 +87,18 @@ export const authController = {
       next(e);
     }
   },
+  logoutUser: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { refreshToken } = req.cookies;
+      const token = await AuthService.logout(refreshToken);
+
+      res.clearCookie(refreshToken);
+
+      res.status(200).json(token);
+    } catch (e) {
+      next(e);
+    }
+  },
+  refresh: async (req: Request, res: Response, next: NextFunction) => {},
+  activate: async (req: Request, res: Response, next: NextFunction) => {},
 };
