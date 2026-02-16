@@ -1,1 +1,1 @@
-export type UserDto = { id: string; email: string; isActivated: boolean };
+export type UserDto = { _id: string; email: string; isActivated: boolean };

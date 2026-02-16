@@ -99,6 +99,29 @@ export const authController = {
       next(e);
     }
   },
-  refresh: async (req: Request, res: Response, next: NextFunction) => {},
-  activate: async (req: Request, res: Response, next: NextFunction) => {},
+  refresh: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { refreshToken } = req.cookies;
+      const userData = await AuthService.refresh(refreshToken);
+
+      res.cookie('refreshToken', userData.tokens.refreshToken, {
+        maxAge: 1000 * 60 * 60 * 24 * 30,
+        httpOnly: true,
+      });
+
+      res.status(200).json({
+        user: userData.user,
+        accessToken: userData.tokens.accessToken,
+      });
+    } catch (e) {
+      next(e);
+    }
+  },
+  activate: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+    } catch (e) {
+      next(e)
+    }
+  },
 };
