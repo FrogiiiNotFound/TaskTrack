@@ -24,6 +24,13 @@ class AuthService {
 
     return data;
   }
+
+  async activate(link: string) {
+    const user = User.findOne({ activationLink: link });
+    if (!user) throw ApiError.BadRequest('Неверная ссылка для активации');
+
+    await User.findOneAndUpdate({ activationLink: link }, { isActivated: link });
+  }
 }
 
 export default new AuthService();

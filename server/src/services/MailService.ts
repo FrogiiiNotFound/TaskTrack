@@ -18,6 +18,8 @@ class MailService {
   }
 
   async sendActivationMail(to: string, link: string) {
+    const fullActivationLink = `${API_URL}/api/v1/activate/${link}`;
+
     await this.transporter.sendMail({
       from: SMTP_USER,
       to,
@@ -26,7 +28,7 @@ class MailService {
       html: `
         <div>
             <h1>Для активации перейдите по ссылке</h1>
-            <a href="${link}">${link}</a>
+            <a href="${fullActivationLink}">${fullActivationLink}</a>
         </div>
       `,
     });

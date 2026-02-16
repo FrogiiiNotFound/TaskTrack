@@ -5,9 +5,10 @@ import ApiError from '../ultils/exeptions/ApiError';
 import bcrypt from 'bcrypt';
 import { v4 } from 'uuid';
 import TokenService from '../services/TokenService';
-import { API_URL } from '../config/constants';
+import { ACTIVATE_URL, API_URL } from '../config/constants';
 import MailService from '../services/MailService';
 import AuthService from '../services/AuthService';
+import { updateUser } from '../ultils/helpers/updateUser';
 
 export const authController = {
   registerUser: async (req: Request, res: Response, next: NextFunction) => {
@@ -32,23 +33,18 @@ export const authController = {
         password: hashPassword,
         activationLink,
       });
+      await MailService.sendActivationMail(email, activationLink);
 
-      const fullActivationLink = `${API_URL}/api/v1/activate/${activationLink}`;
-      await MailService.sendActivationMail(email, fullActivationLink);
+      const data = await updateUser(user);
 
-      const userDto = { id: user._id, email: user.email, isActivated: user.isActivated };
-      const tokens = TokenService.generateTokens({ ...userDto });
-
-      await TokenService.saveToken(userDto.id, tokens.refreshToken);
-
-      res.cookie('refreshToken', tokens.refreshToken, {
+      res.cookie('refreshToken', data.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
       });
 
       return res.status(201).json({
-        ...tokens,
-        user: userDto,
+        ...data.tokens,
+        user: data.user,
       });
     } catch (e) {
       next(e);
@@ -117,11 +113,14 @@ export const authController = {
       next(e);
     }
   },
-  activate: async (req: Request, res: Response, next: NextFunction) => {
+  activate: async (req: Request<{ link: string }>, res: Response, next: NextFunction) => {
     try {
+      const link = req.params.link;
+      await AuthService.activate(link);
 
+      res.status(200).redirect(ACTIVATE_URL as string);
     } catch (e) {
-      next(e)
+      next(e);
     }
   },
 };
