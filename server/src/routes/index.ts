@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import authRouter from './authRoutes';
-import taskRouter from './taskRoutes';
-import taskGroupRouter from './taskGroupRoutes';
+import taskRouter from './tasksRoutes';
+import taskGroupRouter from './taskGroupsRoutes';
 import eventsRouter from './eventsRoutes';
 
 const router = Router();

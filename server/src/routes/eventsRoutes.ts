@@ -1,15 +1,17 @@
 import { Router } from 'express';
 import { eventsController } from '../controllers/eventsController';
 import { authMiddleware } from '../middlewares/authMiddleware';
+import { validate } from '../middlewares/validationMiddleware';
+import { EventSchema } from '../ultils/validation/eventValidation';
 
 const eventsRouter = Router();
 
 eventsRouter.use(authMiddleware);
 
 eventsRouter.get('/events', eventsController.getDayEvents);
-eventsRouter.get('/events/:id', eventsController.getEvent);
-eventsRouter.post('/events', eventsController.addEvent);
-eventsRouter.post('/events/:id', eventsController.changeEvent);
-eventsRouter.delete('/events/:id', eventsController.deleteEvent);
+eventsRouter.get('/events/:eventId', eventsController.getEvent);
+eventsRouter.post('/events', validate(EventSchema), eventsController.addEvent);
+eventsRouter.patch('/events/:eventId', eventsController.changeEvent);
+eventsRouter.delete('/events/:eventId', eventsController.deleteEvent);
 
 export default eventsRouter;

@@ -5,10 +5,10 @@ import { AuthSchema } from '../ultils/validation/authValidation';
 
 const authRouter = Router();
 
-authRouter.post('/register', validate(AuthSchema), authController.registerUser);
-authRouter.post('/login', validate(AuthSchema), authController.loginUser);
-authRouter.post('/logout', authController.logoutUser);
-authRouter.post('/refresh', authController.refresh);
-authRouter.post('/activate/:link', authController.activate);
+authRouter.post('/register', validate(AuthSchema), authController.register);
+authRouter.post('/login', validate(AuthSchema), authController.login);
+authRouter.post('/logout', authController.logout);
+authRouter.get('/refresh', authController.refresh);
+authRouter.get('/activate/:link', authController.activate);
 
 export default authRouter;

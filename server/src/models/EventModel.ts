@@ -8,13 +8,13 @@ const EventsSchema = new mongoose.Schema({
   description: {
     type: String,
   },
-  startDate: {
+  created_at: {
     type: Date,
   },
-  endDate: {
+  end_date: {
     type: Date,
   },
-  userId: {
+  user_id: {
     type: String,
   },
 });

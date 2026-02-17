@@ -19,6 +19,10 @@ class ApiError<T = ApiErrors> extends Error {
   static BadRequest(message: string, errors: ApiErrors = null) {
     throw new ApiError(message, 400, errors);
   }
+
+  static NotFound(message: string) {
+    throw new ApiError(message, 404, null);
+  }
 }
 
 export default ApiError;

@@ -7,4 +7,4 @@ export const UpdateTaskSchema = z.object({
   taskGroupId: z.string().optional(),
 });
 
-export type Task = z.infer<typeof UpdateTaskSchema>;
+export type UpdateTask = z.infer<typeof UpdateTaskSchema>;

@@ -1,41 +1,13 @@
-import type { NextFunction, Response, Request } from 'express';
-import { matchedData, validationResult } from 'express-validator';
-import { User } from '../models/UserModel';
-import ApiError from '../ultils/exeptions/ApiError';
-import bcrypt from 'bcrypt';
-import { v4 } from 'uuid';
-import TokenService from '../services/TokenService';
-import { ACTIVATE_URL, API_URL } from '../config/constants';
-import MailService from '../services/MailService';
+import type { NextFunction, Request, Response } from 'express';
+import { ACTIVATE_URL } from '../config/constants';
 import AuthService from '../services/AuthService';
-import { updateUser } from '../ultils/helpers/updateUser';
+import type { Auth } from '../ultils/validation/authValidation';
 
 export const authController = {
-  registerUser: async (req: Request, res: Response, next: NextFunction) => {
+  register: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
-
-      const { email, password } = matchedData(req);
-
-      const candidate = await User.findOne({ email: email });
-      if (candidate) {
-        throw ApiError.BadRequest('User with that email already exists');
-      }
-
-      const hashPassword = await bcrypt.hash(password, 10);
-      const activationLink = v4();
-
-      const user = await User.create({
-        email,
-        password: hashPassword,
-        activationLink,
-      });
-      await MailService.sendActivationMail(email, activationLink);
-
-      const data = await updateUser(user);
+      const { email, password }: Auth = req.body;
+      const data = await AuthService.register(email, password);
 
       res.cookie('refreshToken', data.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -43,47 +15,32 @@ export const authController = {
       });
 
       return res.status(201).json({
-        ...data.tokens,
         user: data.user,
+        accessToken: data.tokens.accessToken,
       });
     } catch (e) {
       next(e);
     }
   },
-  loginUser: async (req: Request, res: Response, next: NextFunction) => {
+  login: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
-      }
+      const { email, password }: Auth = req.body;
+      const data = await AuthService.login(email, password);
 
-      const { email, password } = matchedData(req);
-
-      const user = await User.findOne({ email });
-      if (!user) throw ApiError.BadRequest('User not found');
-
-      const isMatch = bcrypt.compareSync(password, user.password);
-      if (!isMatch) throw ApiError.BadRequest('Invalid password');
-
-      const userDto = { id: user._id, email: user.email, isActivated: user.isActivated };
-      const tokens = TokenService.generateTokens({ ...userDto });
-
-      await TokenService.saveToken(userDto.id, tokens.refreshToken);
-
-      res.cookie('refreshToken', tokens.refreshToken, {
+      res.cookie('refreshToken', data.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
       });
 
       return res.status(200).json({
-        ...tokens,
-        user: userDto,
+        tokens: data.tokens,
+        user: data.userDto,
       });
     } catch (e) {
       next(e);
     }
   },
-  logoutUser: async (req: Request, res: Response, next: NextFunction) => {
+  logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { refreshToken } = req.cookies;
       const token = await AuthService.logout(refreshToken);
