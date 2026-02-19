@@ -5,16 +5,16 @@ import type { TaskGroup } from '../ultils/validation/taskGroupValidation';
 import type { UpdateTaskGroup } from '../ultils/validation/updateTaskGroupValidation';
 
 class TaskGroupsService {
-    async getTaskGroups(userId: string) {
-        const groups = await TaskGroupModel.find({ userId }).sort({ title: 1 }).lean();
+  async getTaskGroups(userId: string) {
+    const groups = await TaskGroupModel.find({ userId }).sort({ title: 1 }).lean();
 
-        return groups
-    }
-    async getTaskGroupById(groupId: string, userId: string) {
-        const group = await TaskGroupModel.findOne({ _id: groupId, userId });
+    return groups;
+  }
+  async getTaskGroupById(groupId: string, userId: string) {
+    const group = await TaskGroupModel.findOne({ _id: groupId, userId });
 
-        return group
-    }
+    return group;
+  }
   async getTaskGroupTasks(groupId: string, userId: string) {
     const tasks = await TaskModel.find({ groupId, userId }).sort({ createdAt: -1 });
 
@@ -29,7 +29,7 @@ class TaskGroupsService {
 
     const group = await TaskGroupModel.create({
       ...groupData,
-      userId,
+      user_id: userId,
     });
 
     return group;

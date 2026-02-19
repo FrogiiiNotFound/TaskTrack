@@ -1,6 +1,14 @@
 import mongoose from 'mongoose';
 
-const TaskSchema = new mongoose.Schema(
+export interface ITask {
+  name: string;
+  text: string;
+  status: string;
+  taskGroup_id: mongoose.Schema.Types.ObjectId;
+  user_id: mongoose.Schema.Types.ObjectId;
+}
+
+const TaskSchema = new mongoose.Schema<ITask>(
   {
     name: {
       type: String,
@@ -15,12 +23,12 @@ const TaskSchema = new mongoose.Schema(
       required: true,
       default: 'inProgress',
     },
-    taskGroupId: {
+    taskGroup_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'TaskGroup',
       required: true,
     },
-    userId: {
+    user_id: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,

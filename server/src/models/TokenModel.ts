@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 interface IToken extends Document {
   user: Schema.Types.ObjectId;
-  refreshToken: string;
+  refresh_token: string;
 }
 
 const TokenSchema = new mongoose.Schema<IToken>({
@@ -11,7 +11,7 @@ const TokenSchema = new mongoose.Schema<IToken>({
     ref: 'User',
     require: true,
   },
-  refreshToken: {
+  refresh_token: {
     type: String,
     require: true,
   },

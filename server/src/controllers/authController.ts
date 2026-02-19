@@ -7,7 +7,14 @@ export const authController = {
   register: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password }: Auth = req.body;
-      const data = await AuthService.register(email, password);
+
+      let avatarPath: string | null = null;
+
+      if (req.file) {
+        avatarPath = `/static/${req.file.filename}`;
+      }
+
+      const data = await AuthService.register(email, password, avatarPath);
 
       res.cookie('refreshToken', data.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,

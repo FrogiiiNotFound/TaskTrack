@@ -13,7 +13,7 @@ class TasksService {
   }
 
   async createTask(taskData: Task, userId: string) {
-    const group = await TaskGroupModel.findOne({ _id: taskData.taskGroupId, user: userId });
+    const group = await TaskGroupModel.findOne({ _id: taskData.taskGroupId, userId });
     if (!group) throw ApiError.NotFound('Группа задач не найдена');
 
     const task = await TaskModel.create({
@@ -26,7 +26,7 @@ class TasksService {
 
   async updateTask(taskDto: UpdateTask, taskId: string, userId: string) {
     if (taskDto.taskGroupId) {
-      const group = await TaskGroupModel.findOne({ _id: taskDto.taskGroupId, user: userId });
+      const group = await TaskGroupModel.findOne({ _id: taskDto.taskGroupId, userId });
       if (!group) throw ApiError.NotFound('Группа задач не найдена');
     }
 
@@ -41,7 +41,7 @@ class TasksService {
   }
 
   async deleteTask(taskId: string, userId: string) {
-    const task = await TaskModel.findOneAndDelete({ _id: taskId, user: userId });
+    const task = await TaskModel.findOneAndDelete({ _id: taskId, userId });
     if (!task) throw ApiError.BadRequest('Задача не найдена');
 
     return task;

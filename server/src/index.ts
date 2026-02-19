@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { CLIENT_URL, DB_CONNECTION, PORT } from './config/constants';
 import router from './routes';
 import { errorsHandler } from './middlewares/errorsMiddleware';
+import path from 'path';
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(
   }),
 );
 app.use(cookieParser());
+app.use('/static', express.static(path.resolve(__dirname, 'static')));
 app.use('/api/v1', router);
 app.use(errorsHandler);
 

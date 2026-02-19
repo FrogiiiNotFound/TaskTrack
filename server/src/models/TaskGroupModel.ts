@@ -1,11 +1,19 @@
 import mongoose from 'mongoose';
 
-const TaskGroupSchema = new mongoose.Schema({
+export interface ITaskGroup {
+  name: string;
+  banner_url: string;
+  color: string;
+  is_activated: boolean;
+  user_id: mongoose.Schema.Types.ObjectId;
+}
+
+const TaskGroupSchema = new mongoose.Schema<ITaskGroup>({
   name: {
     type: String,
     require: true,
   },
-  bannerUrl: {
+  banner_url: {
     type: String,
   },
   color: {
@@ -13,7 +21,7 @@ const TaskGroupSchema = new mongoose.Schema({
     enum: ['#880d1e', '#606c38', '#f26a8d', '#7f5539', '#0077b6', '#5a189a', '#fdf0d5'],
     default: '#0077b6',
   },
-  userId: {
+  user_id: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     require: true,

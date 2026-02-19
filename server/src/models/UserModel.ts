@@ -1,6 +1,17 @@
-import mongoose from 'mongoose';
+import mongoose, { type HydratedDocument } from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
+export interface IUser {
+  email: string;
+  password: string;
+  nickname?: string;
+  is_activated: boolean;
+  activation_link?: string | null;
+  avatar_url?: string | null;
+}
+
+export type UserDocument = HydratedDocument<IUser>;
+
+const UserSchema = new mongoose.Schema<IUser>({
   email: {
     type: String,
     required: true,
@@ -16,20 +27,22 @@ const UserSchema = new mongoose.Schema({
     required: false,
     minLength: 3,
     maxLength: 32,
+    default: null,
   },
-  isActivated: {
+  is_activated: {
     type: Boolean,
-    required: false,
     default: false,
   },
-  activationLink: {
+  activation_link: {
     type: String,
     required: false,
+    default: null,
   },
-  avatarUrl: {
+  avatar_url: {
     type: String,
     required: false,
+    default: null,
   },
 });
 
-export const User = mongoose.model('User', UserSchema);
+export const UserModel = mongoose.model<IUser>('User', UserSchema);
