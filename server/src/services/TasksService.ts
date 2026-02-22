@@ -1,48 +1,53 @@
-import { TaskGroupModel } from '../models/TaskGroupModel';
-import { TaskModel } from '../models/TaskModel';
-import ApiError from '../ultils/exeptions/ApiError';
-import type { Task } from '../ultils/validation/taskValidation';
-import type { UpdateTask } from '../ultils/validation/updateTaskValidation';
+import { TaskGroupModel } from "../models/TaskGroupModel";
+import { TaskModel } from "../models/TaskModel";
+import ApiError from "../ultils/exeptions/ApiError";
+import type { Task } from "../ultils/validation/taskValidation";
 
 class TasksService {
   async getTaskById(taskId: string, userId: string) {
-    const task = TaskModel.findOne({ _id: taskId, userId }).populate('taskGroup');
-    if (!task) throw ApiError.NotFound('Задача не найдена');
+    const task = TaskModel.findOne({ _id: taskId, userId }).populate("taskGroup");
+    if (!task) throw ApiError.NotFound("Задача не найдена");
 
     return task;
   }
 
-  async createTask(taskData: Task, userId: string) {
-    const group = await TaskGroupModel.findOne({ _id: taskData.taskGroupId, userId });
-    if (!group) throw ApiError.NotFound('Группа задач не найдена');
+  async createTask(taskData: Task, userId: string, groupId: string) {
+    const group = await TaskGroupModel.findOne({ _id: groupId, userId });
+    if (!group) throw ApiError.NotFound("Группа задач не найдена");
 
     const task = await TaskModel.create({
       ...taskData,
-      userId,
+      user_id: userId,
     });
 
     return task;
   }
 
-  async updateTask(taskDto: UpdateTask, taskId: string, userId: string) {
-    if (taskDto.taskGroupId) {
-      const group = await TaskGroupModel.findOne({ _id: taskDto.taskGroupId, userId });
-      if (!group) throw ApiError.NotFound('Группа задач не найдена');
-    }
-
+  async updateTask(taskDto: Task, taskId: string, userId: string) {
     const updatedTask = await TaskModel.findOneAndUpdate(
-      { _id: taskId, user: userId },
+      { _id: taskId, user_id: userId },
       { $set: taskDto },
       { new: true, runValidators: true },
     );
-    if (!updatedTask) throw ApiError.NotFound('Задача не найдена');
+    if (!updatedTask) throw ApiError.NotFound("Задача не найдена");
+
+    return updatedTask;
+  }
+
+  async updateTaskState(status: string, taskId: string, userId: string) {
+    const updatedTask = await TaskModel.findOneAndUpdate(
+      { _id: taskId, user_id: userId },
+      { $set: { status } },
+      { new: true, runValidators: true },
+    );
+    if (!updatedTask) throw ApiError.NotFound("Задача не найдена");
 
     return updatedTask;
   }
 
   async deleteTask(taskId: string, userId: string) {
     const task = await TaskModel.findOneAndDelete({ _id: taskId, userId });
-    if (!task) throw ApiError.BadRequest('Задача не найдена');
+    if (!task) throw ApiError.BadRequest("Задача не найдена");
 
     return task;
   }

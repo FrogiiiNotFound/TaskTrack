@@ -35,7 +35,6 @@ const UserSchema = new mongoose.Schema<IUser>({
   },
   activation_link: {
     type: String,
-    required: false,
     default: null,
   },
   avatar_url: {

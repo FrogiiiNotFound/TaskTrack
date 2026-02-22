@@ -1,36 +1,29 @@
-import mongoose from 'mongoose';
+import mongoose, { type InferSchemaType, Model } from "mongoose";
+import { Status } from "../types/taskStatus";
 
-export interface ITask {
-  name: string;
-  text: string;
-  status: string;
-  taskGroup_id: mongoose.Schema.Types.ObjectId;
-  user_id: mongoose.Schema.Types.ObjectId;
-}
+export type ITask = InferSchemaType<typeof TaskSchema>;
 
-const TaskSchema = new mongoose.Schema<ITask>(
+const TaskSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       required: true,
     },
-    text: {
-      type: String,
-    },
+    text: String,
     status: {
       type: String,
-      enum: ['inProgress', 'marked', 'done'],
+      enum: Object.values(Status),
       required: true,
-      default: 'inProgress',
+      default: "inProgress",
     },
     taskGroup_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'TaskGroup',
+      ref: "TaskGroup",
       required: true,
     },
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      ref: "User",
       required: true,
     },
   },
@@ -39,4 +32,4 @@ const TaskSchema = new mongoose.Schema<ITask>(
   },
 );
 
-export const TaskModel = mongoose.model('Task', TaskSchema);
+export const TaskModel: Model<ITask> = mongoose.model<ITask>("Task", TaskSchema);

@@ -8,10 +8,8 @@ const eventsRouter = Router();
 
 eventsRouter.use(authMiddleware);
 
-eventsRouter.get('/events', eventsController.getDayEvents);
 eventsRouter.get('/events/:eventId', eventsController.getEvent);
-eventsRouter.post('/events', validate(EventSchema), eventsController.addEvent);
-eventsRouter.patch('/events/:eventId', eventsController.changeEvent);
+eventsRouter.put('/events/:eventId', validate(EventSchema), eventsController.changeEvent);
 eventsRouter.delete('/events/:eventId', eventsController.deleteEvent);
 
 export default eventsRouter;

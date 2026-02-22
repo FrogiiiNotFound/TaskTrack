@@ -1,8 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { JWT_ACCESS_SECRET, JWT_REFRESH_SECRET } from '../config/constants';
 import { TokenModel } from '../models/TokenModel';
-import type { UserDto } from '../ultils/dtos/userDto';
-import type { Types } from 'mongoose';
 
 class TokenService {
   static generateTokens(payload: any) {
@@ -12,20 +10,20 @@ class TokenService {
     return { accessToken, refreshToken };
   }
 
-  static async saveToken(userId: Types.ObjectId, refreshToken: string) {
+  static async saveToken(userId: string, refreshToken: string) {
     const tokenData = await TokenModel.findOne({ user: userId as any });
     if (tokenData) {
-      tokenData.refreshToken = refreshToken;
+      tokenData.refresh_token = refreshToken;
       return tokenData.save();
     }
-    const token = await TokenModel.create({ user: userId as any, refreshToken });
+    const token = await TokenModel.create({ user: userId as any, refresh_token: refreshToken });
 
     return token;
   }
 
   static validateAccessToken(token: string) {
     try {
-      const userData = jwt.verify(token, JWT_ACCESS_SECRET) as UserDto;
+      const userData = jwt.verify(token, JWT_ACCESS_SECRET);
 
       return userData;
     } catch (e) {

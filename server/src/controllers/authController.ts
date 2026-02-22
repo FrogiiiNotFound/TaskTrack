@@ -1,22 +1,16 @@
-import type { NextFunction, Request, Response } from 'express';
-import { ACTIVATE_URL } from '../config/constants';
-import AuthService from '../services/AuthService';
-import type { Auth } from '../ultils/validation/authValidation';
+import type { NextFunction, Request, Response } from "express";
+import { ACTIVATE_URL } from "../config/constants";
+import AuthService from "../services/AuthService";
+import type { Auth } from "../ultils/validation/authValidation";
 
 export const authController = {
   register: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, password }: Auth = req.body;
 
-      let avatarPath: string | null = null;
+      const data = await AuthService.register(email, password);
 
-      if (req.file) {
-        avatarPath = `/static/${req.file.filename}`;
-      }
-
-      const data = await AuthService.register(email, password, avatarPath);
-
-      res.cookie('refreshToken', data.tokens.refreshToken, {
+      res.cookie("refreshToken", data.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
       });
@@ -34,14 +28,14 @@ export const authController = {
       const { email, password }: Auth = req.body;
       const data = await AuthService.login(email, password);
 
-      res.cookie('refreshToken', data.tokens.refreshToken, {
+      res.cookie("refreshToken", data.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
       });
 
       return res.status(200).json({
         tokens: data.tokens,
-        user: data.userDto,
+        user: data.user,
       });
     } catch (e) {
       next(e);
@@ -64,7 +58,7 @@ export const authController = {
       const { refreshToken } = req.cookies;
       const userData = await AuthService.refresh(refreshToken);
 
-      res.cookie('refreshToken', userData.tokens.refreshToken, {
+      res.cookie("refreshToken", userData.tokens.refreshToken, {
         maxAge: 1000 * 60 * 60 * 24 * 30,
         httpOnly: true,
       });

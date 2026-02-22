@@ -1,31 +1,36 @@
-import mongoose from 'mongoose';
+import mongoose, { Types } from "mongoose";
+import { Colors } from "../types/groupColors";
 
 export interface ITaskGroup {
   name: string;
   banner_url: string;
   color: string;
   is_activated: boolean;
-  user_id: mongoose.Schema.Types.ObjectId;
+  user_id: Types.ObjectId;
 }
 
 const TaskGroupSchema = new mongoose.Schema<ITaskGroup>({
   name: {
     type: String,
-    require: true,
+    required: true,
   },
   banner_url: {
     type: String,
   },
   color: {
     type: String,
-    enum: ['#880d1e', '#606c38', '#f26a8d', '#7f5539', '#0077b6', '#5a189a', '#fdf0d5'],
-    default: '#0077b6',
+    enum: Object.values(Colors),
+    default: Colors.BLUE,
+  },
+  is_activated: {
+    type: Boolean,
+    default: true,
   },
   user_id: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    require: true,
+    ref: "User",
+    required: true,
   },
 });
 
-export const TaskGroupModel = mongoose.model('TaskGroup', TaskGroupSchema);
+export const TaskGroupModel = mongoose.model<ITaskGroup>("TaskGroup", TaskGroupSchema);

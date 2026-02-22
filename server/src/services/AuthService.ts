@@ -1,17 +1,17 @@
-import type { JwtPayload } from 'jsonwebtoken';
-import ApiError from '../ultils/exeptions/ApiError';
-import TokenService from './TokenService';
-import { UserModel } from '../models/UserModel';
-import { updateUser } from '../ultils/helpers/updateUser';
-import MailService from './MailService';
-import bcrypt from 'bcrypt';
-import { v4 } from 'uuid';
+import type { JwtPayload } from "jsonwebtoken";
+import ApiError from "../ultils/exeptions/ApiError";
+import TokenService from "./TokenService";
+import { UserModel } from "../models/UserModel";
+import MailService from "./MailService";
+import bcrypt from "bcrypt";
+import { v4 } from "uuid";
+import UserDto from "../ultils/dtos/userDto";
 
 class AuthService {
-  async register(email: string, password: string, avatarPath: string | null) {
+  async register(email: string, password: string) {
     const candidate = await UserModel.findOne({ email: email });
     if (candidate) {
-      throw ApiError.BadRequest('User with that email already exists');
+      throw ApiError.BadRequest("User with that email already exists");
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
@@ -21,31 +21,26 @@ class AuthService {
       email,
       password: hashPassword,
       activation_link: activationLink,
-      avatar_url: avatarPath,
     });
     await MailService.sendActivationMail(email, activationLink);
 
-    const data = await updateUser(user);
+    const data = await this.updateUser(user);
 
     return data;
   }
 
   async login(email: string, password: string) {
     const user = await UserModel.findOne({ email });
-    if (!user) throw ApiError.BadRequest('User not found');
+    if (!user) throw ApiError.BadRequest("User not found");
 
     const isMatch = bcrypt.compareSync(password, user.password);
-    if (!isMatch) throw ApiError.BadRequest('Invalid password');
+    if (!isMatch) throw ApiError.BadRequest("Invalid password");
 
-    const userDto = { id: user._id, email: user.email, isActivated: user.is_activated };
-    const tokens = TokenService.generateTokens({ ...userDto });
+    const userData = await this.updateUser(user);
 
-    await TokenService.saveToken(userDto.id, tokens.refreshToken);
+    await TokenService.saveToken(userData.user.user_id, userData.tokens.refreshToken);
 
-    return {
-      tokens,
-      userDto,
-    };
+    return userData;
   }
 
   async logout(refreshToken: string) {
@@ -64,16 +59,28 @@ class AuthService {
 
     const user = await UserModel.findOne({ _id: userData.id });
 
-    const data = updateUser(user);
+    const data = this.updateUser(user);
 
     return data;
   }
 
   async activate(link: string) {
     const user = UserModel.findOne({ activationLink: link });
-    if (!user) throw ApiError.BadRequest('Неверная ссылка для активации');
+    if (!user) throw ApiError.BadRequest("Неверная ссылка для активации");
 
     await UserModel.findOneAndUpdate({ activationLink: link }, { isActivated: link });
+  }
+
+  private async updateUser(user: any) {
+    const userDto = new UserDto(user);
+    const tokens = TokenService.generateTokens(userDto);
+
+    await TokenService.saveToken(userDto.user_id, tokens.refreshToken);
+
+    return {
+      user: userDto,
+      tokens,
+    };
   }
 }
 

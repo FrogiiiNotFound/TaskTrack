@@ -1,8 +1,8 @@
-import { TaskGroupModel } from '../models/TaskGroupModel';
-import { TaskModel } from '../models/TaskModel';
-import ApiError from '../ultils/exeptions/ApiError';
-import type { TaskGroup } from '../ultils/validation/taskGroupValidation';
-import type { UpdateTaskGroup } from '../ultils/validation/updateTaskGroupValidation';
+import { Types } from "mongoose";
+import { TaskGroupModel } from "../models/TaskGroupModel";
+import { TaskModel } from "../models/TaskModel";
+import ApiError from "../ultils/exeptions/ApiError";
+import type { TaskGroup } from "../ultils/validation/taskGroupValidation";
 
 class TaskGroupsService {
   async getTaskGroups(userId: string) {
@@ -22,26 +22,26 @@ class TaskGroupsService {
   }
 
   async createTaskGroup(groupData: TaskGroup, userId: string) {
-    if (!groupData.name) throw ApiError.BadRequest('Имя обязательно');
+    if (!groupData.name) throw ApiError.BadRequest("Имя обязательно");
 
     const candidate = await TaskGroupModel.findOne({ name: groupData.name, userId });
-    if (candidate) throw ApiError.BadRequest('Группа с таким именем уже существует');
+    if (candidate) throw ApiError.BadRequest("Группа с таким именем уже существует");
 
     const group = await TaskGroupModel.create({
       ...groupData,
-      user_id: userId,
+      user_id: new Types.ObjectId(userId),
     });
 
     return group;
   }
-  async updateTaskGroup(id: string, userId: string, dto: UpdateTaskGroup) {
+  async updateTaskGroup(id: string, userId: string, dto: TaskGroup) {
     if (dto.name) {
       const candidate = await TaskGroupModel.findOne({
         name: dto.name,
         user: userId,
         _id: { $ne: id },
       });
-      if (candidate) throw ApiError.BadRequest('Группа с таким именем уже существует');
+      if (candidate) throw ApiError.BadRequest("Группа с таким именем уже существует");
     }
 
     const updatedGroup = await TaskGroupModel.findOneAndUpdate(
@@ -49,16 +49,38 @@ class TaskGroupsService {
       { $set: dto },
       { new: true, runValidators: true },
     );
-    if (!updatedGroup) throw ApiError.NotFound('Группа не найдена');
+    if (!updatedGroup) throw ApiError.NotFound("Группа не найдена");
+  }
+
+  async updateTaskGroupBanner(taskGroupId: string, userId: string, bannerUrl: string) {
+    const updatedGroup = await TaskGroupModel.findOneAndUpdate(
+      { _id: taskGroupId, user_id: userId },
+      { banner_url: bannerUrl },
+      { new: true, runValidators: true },
+    );
+
+    return updatedGroup;
+  }
+
+  async deleteTaskGroupBanner(id: string, userId: string) {
+    const updatedGroup = await TaskGroupModel.findOneAndUpdate(
+      { _id: id, userId },
+      { banner_url: "" },
+      { new: true, runValidators: true },
+    );
+
+    return updatedGroup;
   }
 
   async deleteTaskGroup(id: string, userId: string) {
     const group = await TaskGroupModel.findOne({ _id: id, userId });
-    if (!group) throw ApiError.NotFound('Группа не найдена');
+    if (!group) throw ApiError.NotFound("Группа не найдена");
 
     await TaskModel.deleteMany({ taskGroupId: id, userId });
 
-    await TaskGroupModel.deleteOne({ _id: id, userId });
+    const deletedGroup = await TaskGroupModel.deleteOne({ _id: id, userId });
+
+    return deletedGroup;
   }
 }
 
